@@ -13,7 +13,6 @@ ALGORITHM = {
     '1.3.14.3.2.29': 'sha1RSA',
     '1.2.840.113549.1.1.13': 'sha512RSA',
      '1.2.840.113549.1.1.11':'sha256RSA'
-
 }
 RDN = {
     "2.5.4.6" : "Country: ",
@@ -41,11 +40,13 @@ INTEGEER = {
     0: 'VERSION: ',
     1: 'default version: ',
     2: 'SERIAL NUMBER: ',
-    3: '    args needed in SIGNATURE ALGORITHM: '
+    3: '    args needed in SIGNATURE ALGORITHM: ',
+    4: '    args needed in CERTIFICATE ALGORITHM: '
 }
 
 BITSTRING = {
-    0: 'Subject Public Key: '
+    0: '    Subject Public Key: \n   ',
+    1: 'Certificate Signature: \n   '
 }
 
 PRINTABLE = {
@@ -59,11 +60,13 @@ OBJECT = {
     1:'ISSUER: ',
     2:'SUBJECT: ',
     3:'SUBJECT PUBLIC KEY INFO: \n    Algorithm: ',
+    4:'Certificate Signature Algorithm: : '
 }
 
 NULL = {
     0: '    args needed in SIGNATURE ALGORITHM: ',
-    1: '    args needed in PUBLIC KEY ALGORITHM: '
+    1: '    args needed in PUBLIC KEY ALGORITHM: ',
+    2: '    args needed in CERTIFICATE ALGORITHM: '
 }
 
 TIME = {
@@ -154,7 +157,7 @@ class Certificate(object):
                 # print("------------get version-----------")
             elif tag == 3:
                 self.extension = True
-                print("--------------------EXTENSION PART--------------------")
+
             self.type = tag
             self.tag = True
             self.main()
@@ -169,6 +172,12 @@ class Certificate(object):
             self.main()
 
     def getResult(self, tempStr):
+        if self.extension == True:
+            print("--------------------EXTENSION PART--------------------")
+            print(tempStr)
+            print("--------------------EXTENSION End--------------------")
+            self.extension = False
+            return
         if self.type == 2:
             if self.intCount >= len(INTEGEER):
                 print(tempStr)
@@ -294,7 +303,7 @@ class Certificate(object):
         length = ord(self.file.read(1))
         trueLength = self.getTrueLength(length)
         for i in range(0, trueLength):
-            tempStr += self.file.read(1).decode('ISO-8859-1')
+            tempStr +=  str(self.file.read(1))[2:-1]
         return tempStr
 
     def dealNull(self):
@@ -320,5 +329,6 @@ class Certificate(object):
         return trueLength
 
 if __name__ == "__main__":
-    cer = Certificate ('AdobeIntermediateCA10-3.cer')
+    FILENAME = sys.argv[1]
+    cer = Certificate (FILENAME)
     cer.main()
